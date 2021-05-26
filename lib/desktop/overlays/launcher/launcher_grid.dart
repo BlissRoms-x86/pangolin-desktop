@@ -72,7 +72,7 @@ import 'package:device_apps/device_apps.dart';class LauncherGrid extends Statele
           horizontal: horizontalWidgetPaddingMultiplier * 200,
         ),
         child: FutureBuilder(
-            future: DeviceApps.getInstalledApplications(includeAppIcons: true),
+            future: DeviceApps.getInstalledApplications(includeAppIcons: true, onlyAppsWithLaunchIntent: true, includeSystemApps: true),
             builder: (BuildContext context,
                 AsyncSnapshot<List<Application>> snapshot) {
               print(snapshot.connectionState);
