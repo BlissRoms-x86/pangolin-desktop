@@ -61,6 +61,7 @@ dependencies:
     git:
       url: https://github.com/dahliaOS/welcome.git
   http: ^0.13.1
+  device_apps: any
 
 
 dev_dependencies:
