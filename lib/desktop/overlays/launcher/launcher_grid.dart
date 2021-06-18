@@ -9,18 +9,14 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-*/
-
-import 'package:dahlia_backend/dahlia_backend.dart';
+*///import 'package:dahlia_backend/dahlia_backend.dart';
 import 'package:flutter/material.dart';
-import 'package:pangolin/utils/app_list.dart';
+//import 'package:pangolin/utils/app_list.dart';
+//import 'package:pangolin/utils/app_list.dart';
 import 'package:pangolin/widgets/app_launcher_button.dart';
-
-class LauncherGrid extends StatelessWidget {
+import 'package:device_apps/device_apps.dart';class LauncherGrid extends StatelessWidget {
   final PageController? controller;
-  LauncherGrid({@required this.controller});
-
-  @override
+  LauncherGrid({@required this.controller});  @override
   Widget build(BuildContext context) {
     final minWidth = 512;
     double width = MediaQuery.of(context).size.width;
@@ -36,9 +32,7 @@ class LauncherGrid extends StatelessWidget {
           (width - minWidth) / (1000 - minWidth);
     } else {
       horizontalWidgetPaddingMultiplier = 1;
-    }
-
-    final _applications = applications;
+    }    /* final _applications = applications;
     List<Application> _internet = List.empty(growable: true);
     List<Application> _media = List.empty(growable: true);
     List<Application> _gaming = List.empty(growable: true);
@@ -64,9 +58,7 @@ class LauncherGrid extends StatelessWidget {
       if (element.category == ApplicationCategory.SYSTEM) {
         _system.add(element);
       }
-    });
-
-    List<List> pages = [
+    });    List<List> pages = [
       _applications,
       _internet,
       _media,
@@ -74,34 +66,54 @@ class LauncherGrid extends StatelessWidget {
       _development,
       _office,
       _system
-    ];
-
-    return Expanded(
+    ]; */    return Expanded(
       child: Padding(
         padding: EdgeInsets.symmetric(
           horizontal: horizontalWidgetPaddingMultiplier * 200,
         ),
-        child: PageView.builder(
-            physics: NeverScrollableScrollPhysics(),
-            controller: controller,
-            itemCount: pages.length,
-            scrollDirection: Axis.horizontal,
-            itemBuilder: (context, pvindex) {
-              final page = pages[pvindex];
-              return GridView.builder(
-                physics: BouncingScrollPhysics(),
-                itemCount: pages[pvindex].length,
-                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                  // Flutter automatically calculates the optimal number of horizontal
-                  // items with a MaxCrossAxisExtent in the app launcher grid
-                  maxCrossAxisExtent: 175,
-                  mainAxisSpacing: 0,
-                  crossAxisSpacing: 0,
-                ),
-                itemBuilder: (BuildContext context, int index) {
-                  return AppLauncherButton(page[index].packageName!);
-                },
-              );
+        child: FutureBuilder(
+            future: DeviceApps.getInstalledApplications(includeAppIcons: true, onlyAppsWithLaunchIntent: true, includeSystemApps: true),
+            builder: (BuildContext context,
+                AsyncSnapshot<List<Application>> snapshot) {
+              print(snapshot.connectionState);
+              if (snapshot.connectionState == ConnectionState.done) {
+                print(snapshot.connectionState);
+                List<Application> _apps = snapshot.data!.toList();
+                return GridView.builder(
+                  physics: BouncingScrollPhysics(),
+                  itemCount: _apps.length,
+                  gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                    // Flutter automatically calculates the optimal number of horizontal
+                    // items with a MaxCrossAxisExtent in the app launcher grid
+                    maxCrossAxisExtent: 175,
+                    mainAxisSpacing: 0,
+                    crossAxisSpacing: 0,
+                  ),
+                  itemBuilder: (BuildContext context, int index) {
+                    return Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          DeviceApps.openApp(_apps[index].packageName);
+                        },
+                        child: Column(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(48),
+                              child: Image.memory(
+                                (_apps[index] as ApplicationWithIcon).icon,
+                                width: 48,
+                              ),
+                            ),
+                            Text(_apps[index].appName),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
+              }
+              return Container(child: CircularProgressIndicator());
             }),
       ),
     );
